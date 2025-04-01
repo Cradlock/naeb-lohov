@@ -4,5 +4,5 @@ COPY r.txt .
 RUN pip install --no-cache-dir -r r.txt 
 WORKDIR /app 
 COPY . . 
-ENTRYPOINT [ "python","api/init.py" ]
-CMD ["python","api/main.py"]
+ENTRYPOINT [ "python","init.py" ]
+CMD ["uvicorn","main:app","--host","0.0.0.0","--port","$PORT"]
