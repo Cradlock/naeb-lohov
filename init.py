@@ -37,13 +37,13 @@ def init_db():
 
         cursor.execute(f"{base_create_tb_text} {Types} ({base_id},title TEXT)")
 
-        cursor.execute(f"{base_create_tb_text} {Symptoms} ({base_id} , desc TEXT , type_id INTEGER ,location TEXT DEFAULT 'Общая' , {rel("type_id",Types)} )")
+        cursor.execute(f"{base_create_tb_text} {Symptoms} ({base_id} , desc TEXT , type_id INTEGER ,location TEXT DEFAULT 'Общая' , {rel('type_id',Types)} )")
 
         cursor.execute(f"{base_create_tb_text} {Treatments} ({base_id} , title TEXT , desc TEXT)")
 
-        cursor.execute(f"{base_create_tb_text} DS ({base_id} , disea_id INTEGER , symptom_id INTEGER , {rel("disea_id",Diseas)} , {rel("symptom_id",Symptoms)})")
+        cursor.execute(f"{base_create_tb_text} DS ({base_id} , disea_id INTEGER , symptom_id INTEGER , {rel('disea_id',Diseas)} , {rel('symptom_id',Symptoms)})")
 
-        cursor.execute(f"{base_create_tb_text} DT ({base_id} , disea_id INTEGER , treat_id INTEGER , {rel("disea_id",Diseas)} , {rel("treat_id",Treatments)})")
+        cursor.execute(f"{base_create_tb_text} DT ({base_id} , disea_id INTEGER , treat_id INTEGER , {rel('disea_id',Diseas)} , {rel('treat_id',Treatments)})")
         
         db.commit()
 
