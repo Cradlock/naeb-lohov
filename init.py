@@ -62,48 +62,47 @@ class AnalyzesData(BaseModel):
 
 def createData(data):
     try:  
-     with sql.connect(PATH_DB) as f:
-        cursor = f.cursor()
-        cursor.execute(f" {base_get_tb_text(Diseas,'id')}  WHERE title = ? ",(data.title,))
-        disease_id = cursor.fetchone()
-        if disease_id is None:
-            cursor.execute(f"{base_add_tb_text(Diseas)} (title,desc) VALUES (?,?)",(data.title,data.desc))
-            disease_id = cursor.lastrowid
-        else:
-            disease_id = disease_id[0]
-
-        symptom_ids = []
-        for type_symptom,symptoms  in data.symptoms.items():
-            type_symptom = type_symptom.lower()
-            cursor.execute(f"{base_get_tb_text( Types  , "id")} WHERE title = ? ",(type_symptom,))
-            type_id = cursor.fetchone()
-            if type_id is None:
-                cursor.execute(f" {base_add_tb_text(Types)} (title) VALUES (?) ",(type_symptom,))
-                type_id = cursor.lastrowid
+        with sql.connect(PATH_DB) as f:
+            cursor = f.cursor()
+            cursor.execute(f" {base_get_tb_text(Diseas,'id')}  WHERE title = ? ",(data.title,))
+            disease_id = cursor.fetchone()
+            if disease_id is None:
+                cursor.execute(f"{base_add_tb_text(Diseas)} (title,desc) VALUES (?,?)",(data.title,data.desc))
+                disease_id = cursor.lastrowid
             else:
-                type_id = type_id[0]
+                disease_id = disease_id[0]
 
-            for symptom in symptoms:
-                symptom = symptom.lower()
-                description_symptom = f"{type_symptom} {symptom}".strip() if symptom else type_symptom
-                cursor.execute(f"{base_get_tb_text(Symptoms,"id")} WHERE desc = ? and type_id = ? ",(description_symptom.lower(),type_id))
-
-                symptom_id = cursor.fetchone()
-                if symptom_id is None:
-                    cursor.execute(f"{base_add_tb_text(Symptoms)} (desc,type_id,location) VALUES(?,?,?)",(description_symptom,type_id,symptom or None))
-                    symptom_id = cursor.lastrowid
+            symptom_ids = []
+            for type_symptom, symptoms in data.symptoms.items():
+                type_symptom = type_symptom.lower()
+                cursor.execute(f"{base_get_tb_text(Types, 'id')} WHERE title = ? ", (type_symptom,))
+                type_id = cursor.fetchone()
+                if type_id is None:
+                    cursor.execute(f" {base_add_tb_text(Types)} (title) VALUES (?) ", (type_symptom,))
+                    type_id = cursor.lastrowid
                 else:
-                    symptom_id = symptom_id[0]
+                    type_id = type_id[0]
 
-                symptom_ids.append(symptom_id)
+                for symptom in symptoms:
+                    symptom = symptom.lower()
+                    description_symptom = f"{type_symptom} {symptom}".strip() if symptom else type_symptom
+                    cursor.execute(f"{base_get_tb_text(Symptoms, 'id')} WHERE desc = ? and type_id = ? ",(description_symptom.lower(), type_id))
 
+                    symptom_id = cursor.fetchone()
+                    if symptom_id is None:
+                        cursor.execute(f"{base_add_tb_text(Symptoms)} (desc,type_id,location) VALUES(?,?,?)", (description_symptom, type_id, symptom or None))
+                        symptom_id = cursor.lastrowid
+                    else:
+                        symptom_id = symptom_id[0]
+
+                    symptom_ids.append(symptom_id)
 
             treatmen_ids = []
-            for treat,desc_tret in data.treatments.items():
-                cursor.execute(f"{base_get_tb_text(Treatments,"id")} WHERE title = ? ",(treat,))
+            for treat, desc_tret in data.treatments.items():
+                cursor.execute(f"{base_get_tb_text(Treatments, 'id')} WHERE title = ? ", (treat,))
                 treatment_id = cursor.fetchone()
                 if treatment_id is None:
-                    cursor.execute(f"{base_add_tb_text(Treatments)} (title,desc) VALUES (?,?)",(treat,desc_tret,))
+                    cursor.execute(f"{base_add_tb_text(Treatments)} (title,desc) VALUES (?,?)", (treat, desc_tret,))
                     treatment_id = cursor.lastrowid
                 else:
                     treatment_id = treatment_id[0]
@@ -111,20 +110,16 @@ def createData(data):
                 treatmen_ids.append(treatment_id)
 
             for sympt_id in symptom_ids:
-                cursor.execute(f"INSERT OR IGNORE INTO DS (disea_id,symptom_id) VALUES (?,?) ",(disease_id,symptom_id,))
-
+                cursor.execute(f"INSERT OR IGNORE INTO DS (disea_id,symptom_id) VALUES (?,?) ", (disease_id, sympt_id))
 
             for treat_id in treatmen_ids:
-                cursor.execute(f"INSERT OR IGNORE INTO DT (disea_id,treat_id) VALUES (?,?)",(disease_id,treat_id,))
+                cursor.execute(f"INSERT OR IGNORE INTO DT (disea_id,treat_id) VALUES (?,?)", (disease_id, treat_id))
 
             f.commit()
 
-        return  {"message": f"Disease '{data.title}' added successfully", "disease_id": disease_id}
+        return {"message": f"Disease '{data.title}' added successfully", "disease_id": disease_id}
     except sql.DatabaseError as e:
         db_error(e)
-
-
-
 
 if __name__ == "__main__":
     init_db()
