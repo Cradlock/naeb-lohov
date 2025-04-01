@@ -1,0 +1,11 @@
+services:
+  # A Docker web service
+  - type: web
+    name: naeblohov
+    runtime: python
+    plan: free
+    autoDeploy: false
+    buildCommand: pip install -r r.txt
+    startCommand: |
+     py init.py &&
+     uvicorn main:app --host 0.0.0.0 --port $PORT
