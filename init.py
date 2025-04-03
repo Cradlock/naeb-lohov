@@ -49,6 +49,7 @@ def init_db():
 
 
 
+
 class DiseaCreate(BaseModel):
     title: str 
     desc: str
