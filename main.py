@@ -27,8 +27,8 @@ async def get_symptoms():
        ft = cursor.fetchall()
        for id_s,title in ft:
            cursor.execute(f"SELECT desc FROM {Symptoms} WHERE type_id = ?",(id_s,))
-           local_symptom = cursor.fetchall()
-           data[title] = local_symptom[0]
+           local_symptom = cursor.fetchone()
+           data[title] = local_symptom
      return {"symptoms":data}
     except sql.DatabaseError as e:
         db_error(e)
